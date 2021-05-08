@@ -6,8 +6,9 @@ module.exports = {
   mode: 'development',
   entry: './src/index.js',
   output: {
+    publicPath: '/',
     path: path.resolve(__dirname, 'dist'),
-    filename: '[name].bundle.js'
+    filename: '[name].[contenthash].bundle.js'
   },
   devServer: {
     port: 3000,
@@ -45,20 +46,23 @@ module.exports = {
         use: [
           {
             loader: 'file-loader',
-          },
-        ],
-      },
-      {
-        test: /\.(png|jpg|gif)$/i,
-        use: [
-          {
-            loader: 'url-loader',
             options: {
-              limit: 8192,
-            },
-          },
-        ],
-      }
+              name: '[path][name].[ext]'
+            }
+          }
+        ]
+      },
+      // {
+      //   test: /\.(png|jpe?g|gif)$/i,
+      //   use: [
+      //     {
+      //       loader: 'url-loader',
+      //       options: {
+      //         limit: 8192
+      //       }
+      //     }
+      //   ]
+      // }
     ]
   }
 }
