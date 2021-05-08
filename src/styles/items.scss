@@ -1,0 +1,33 @@
+$item-size: 50px;
+
+.game {
+  position: relative;
+}
+
+.row {
+  display: flex;
+}
+
+.ground {
+  width: $item-size;
+  height: $item-size;
+  background: url(../assets/ground.jpg) no-repeat center;
+  // background-color: rgb(222, 184, 135);
+}
+
+.air {
+  width: $item-size;
+  height: $item-size;
+  background-color: rgb(135, 206, 250);
+}
+
+.wall {
+  width: $item-size;
+  height: $item-size;
+  background: url(../assets/wall.jpg) no-repeat center;
+  // background-color: rgb(128, 128, 128);
+}
+
+.player {
+  position: absolute;
+}
