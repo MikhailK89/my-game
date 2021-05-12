@@ -1,31 +1,24 @@
 $item-size: 50px;
 
-.game {
-  position: relative;
-}
-
-.row {
-  display: flex;
-}
-
 .ground {
+  flex-shrink: 0;
   width: $item-size;
   height: $item-size;
-  background: url(../assets/ground.jpg) no-repeat center;
-  // background-color: rgb(222, 184, 135);
+  background-color: rgb(222, 184, 135);
 }
 
 .air {
+  flex-shrink: 0;
   width: $item-size;
   height: $item-size;
   background-color: rgb(135, 206, 250);
 }
 
 .wall {
+  flex-shrink: 0;
   width: $item-size;
   height: $item-size;
-  background: url(../assets/wall.jpg) no-repeat center;
-  // background-color: rgb(128, 128, 128);
+  background-color: rgb(128, 128, 128);
 }
 
 .player {

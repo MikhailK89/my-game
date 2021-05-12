@@ -1,3 +1,5 @@
+import {game} from '../index'
+
 export class DomOperations {
   applyProps(elem, props) {
     const keys = Object.keys(props)
@@ -16,12 +18,21 @@ export class DomOperations {
   heroShift(elem, coords) {
     const keys = Object.keys(coords)
 
-    const res = keys.reduce((obj, key) => {
-      return {
-        ...obj,
-        [key]: coords[key] + 'px'
+    const res = {}
+
+    keys.forEach(key => {
+      if (key === 'left') {
+        res['left'] = coords['left'] + game.scrollLeft + 'px'
       }
-    }, {})
+
+      if (key === 'top') {
+        res['top'] = coords['top'] + game.scrollTop + 'px'
+      }
+    })
+
+    if (Object.keys(res).length === 0) {
+      return
+    }
 
     this.applyProps(elem, {
       style: {
@@ -39,5 +50,10 @@ export class DomOperations {
 
   insertElem(elem, parent) {
     parent.append(elem)
+  }
+
+  scrollScreen(x, y) {
+    game.scrollLeft += x
+    game.scrollTop += y
   }
 }

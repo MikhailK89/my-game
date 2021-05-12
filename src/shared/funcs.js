@@ -1,13 +1,26 @@
 import {domOperations} from '../index'
+import {game} from '../index'
+import {groundStatus, notObstacles} from '../settings/worldSettings'
 
 export function findCurCoords(elem) {
-  const rect = elem.getBoundingClientRect()
+  const elemRect = elem.getBoundingClientRect()
+  const gameRect = game.getBoundingClientRect()
+
   return {
-    left: rect.left,
-    right: rect.right,
-    top: rect.top,
-    bottom: rect.bottom
+    left: elemRect.left - gameRect.left,
+    right: elemRect.right - gameRect.left,
+    top: elemRect.top - gameRect.top,
+    bottom: elemRect.bottom - gameRect.top
   }
+}
+
+export function getElemFromPoint(x, y) {
+  const gameRect = game.getBoundingClientRect()
+
+  x += gameRect.left
+  y += gameRect.top
+
+  return document.elementFromPoint(x, y)
 }
 
 export function getElemsUnderPoints(elem, set, offset = null) {
@@ -33,22 +46,22 @@ export function getElemsUnderPoints(elem, set, offset = null) {
 
   if (set === 'groundPoints') {
     return {
-      point1: document.elementFromPoint(left, bottom),
-      point2: document.elementFromPoint(horMid, bottom),
-      point3: document.elementFromPoint(right, bottom)
+      point1: getElemFromPoint(left, bottom),
+      point2: getElemFromPoint(horMid, bottom),
+      point3: getElemFromPoint(right, bottom)
     }
   }
 
   if (set === 'obstaclePoints') {
     return {
-      point1: document.elementFromPoint(left - 1, top - 1),
-      point2: document.elementFromPoint(horMid, top - 1),
-      point3: document.elementFromPoint(right + 1, top - 1),
-      point4: document.elementFromPoint(left - 1, verMid),
-      point5: document.elementFromPoint(right + 1, verMid),
-      point6: document.elementFromPoint(left - 1, bottom - 1),
-      point7: document.elementFromPoint(horMid, bottom - 1),
-      point8: document.elementFromPoint(right + 1, bottom - 1)
+      point1: getElemFromPoint(left - 1, top - 1),
+      point2: getElemFromPoint(horMid, top - 1),
+      point3: getElemFromPoint(right + 1, top - 1),
+      point4: getElemFromPoint(left - 1, verMid),
+      point5: getElemFromPoint(right + 1, verMid),
+      point6: getElemFromPoint(left - 1, bottom - 1),
+      point7: getElemFromPoint(horMid, bottom - 1),
+      point8: getElemFromPoint(right + 1, bottom - 1)
     }
   }
 }
@@ -56,8 +69,6 @@ export function getElemsUnderPoints(elem, set, offset = null) {
 export function isOnGround(elem) {
   const groundPoints = getElemsUnderPoints(elem, 'groundPoints')
   const keys = Object.keys(groundPoints)
-
-  const groundStatus = ['ground', 'wall']
 
   let isGround = false
 
@@ -73,8 +84,6 @@ export function isOnGround(elem) {
 export function hasObstacle(elem, offset = null) {
   const obstaclePoints = getElemsUnderPoints(elem, 'obstaclePoints', offset)
   const keys = Object.keys(obstaclePoints)
-
-  const notObstacles = ['air', 'player']
 
   let isObstacle = false
 
@@ -100,11 +109,10 @@ export function alignHero(elem) {
   const keys = Object.keys(groundPoints)
 
   keys.forEach(key => {
-    const elemUnder = groundPoints[key]
-    const rect = elemUnder.getBoundingClientRect()
+    const elemUnderCoords = findCurCoords(groundPoints[key])
 
     domOperations.heroShift(elem, {
-      top: rect.top - elemHeight
+      top: elemUnderCoords.top - elemHeight
     })
   })
 }

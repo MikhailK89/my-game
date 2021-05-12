@@ -1,19 +1,11 @@
 import './styles/style.scss'
 import './styles/items.scss'
 
+import * as worldSettings from './settings/worldSettings'
 import {DomOperations} from './shared/domOperations'
-import {worldMap, heroes} from './settings/worldSettings'
-import {Player} from './heroes/player'
 
 export const domOperations = new DomOperations()
-
-const game = document.querySelector('.game')
-
-const arrowCodes = {
-  37: 'left',
-  38: 'up',
-  39: 'right'
-}
+export const game = document.querySelector('.game')
 
 function trackKeys(codes) {
   const pressed = {}
@@ -32,28 +24,14 @@ function trackKeys(codes) {
   return pressed
 }
 
-const arrowsState = trackKeys(arrowCodes)
+const arrowsState = trackKeys(worldSettings.arrowCodes)
 
 function createBackgroundElement(item) {
-  let elem
-
-  if (item === 'o' || heroes.includes(item)) {
-    elem = domOperations.createElem('div', {className: 'air'})
-  }
-
-  if (item === 'x') {
-    elem = domOperations.createElem('div', {className: 'ground'})
-  }
-
-  if (item === 'w') {
-    elem = domOperations.createElem('div', {className: 'wall'})
-  }
-
-  return elem
+  return domOperations.createElem('div', {className: worldSettings.bgElems[item]})
 }
 
 function createBackground() {
-  worldMap.forEach(row => {
+  worldSettings.worldMap.forEach(row => {
     const rowElem = domOperations.createElem('div', {className: 'row'})
 
     for (let i = 0; i < row.length; i++) {
@@ -65,26 +43,26 @@ function createBackground() {
 }
 
 function createHeroes() {
-  worldMap.forEach(row => {
+  const createdHeroes = []
 
-    for (let idxCol = 0; idxCol < row.length; idxCol++) {
+  worldSettings.worldMap.forEach(row => {
+    for (let i = 0; i < row.length; i++) {
+      if (Object.keys(worldSettings.heroes).includes(row[i])) {
+        const heroClass = worldSettings.heroes[row[i]]
+        const hero = new heroClass()
 
-      if (row[idxCol] === 'p') {
-        const player = new Player({
-          style: {
-            left: 10 + 'px',
-            top: 200 + 'px'
-          }
-        })
+        createdHeroes.push(hero)
 
-        domOperations.insertElem(player.elem, game)
-
-        setInterval(() => {
-          player.animate(arrowsState)
-        }, 50)
+        domOperations.insertElem(hero.elem, game)
       }
     }
   })
+
+  setInterval(() => {
+    createdHeroes.forEach(h => {
+      h.animate(arrowsState)
+    })
+  }, 50)
 }
 
 createBackground()

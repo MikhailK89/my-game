@@ -1,5 +1,6 @@
 import * as funcs from '../shared/funcs'
 import {domOperations} from '../index'
+import {game} from '../index'
 import imgRight from '../assets/player-sm-right.png'
 import imgLeft from '../assets/player-sm-left.png'
 
@@ -7,54 +8,78 @@ export class Player {
   props = {
     className: 'player',
     style: {
+      left: 40 + 'px',
+      top: 200 + 'px',
       width: '80px',
       height: '96px',
       background: `url(${imgRight}) no-repeat`,
-      backgroundPosition: 'top left 0px'
+      backgroundPosition: 'top left -320px'
     }
   }
 
-  step = 7
-  bgPos = 0
-
-  dir = 1
+  horStep = 7
+  verStep = 20
+  jumpHeight = 140
+  bg = {pos: -320, dir: 'right'}
 
   jumpAnimation = false
   fallAnimation = false
 
-  constructor(addProps) {
+  constructor(addProps = null) {
     this.elem = domOperations.createElem('div', this.props)
-    domOperations.applyProps(this.elem, addProps)
+
+    if (addProps) {
+      domOperations.applyProps(this.elem, addProps)
+    }
   }
 
-  moveBackAndForth(img, dir = 'right') {
-    const leftPos = funcs.findCurCoords(this.elem).left
-
-    this.bgPos -= 80
-
-    if (this.bgPos < -320) {
-      this.bgPos = 0
+  bgChange(img, dir) {
+    if (this.bg.dir !== dir) {
+      this.bg.pos = -1 * (this.bg.pos + 320)
+      this.bg.dir = dir
     }
 
-    if (dir === 'right' && this.step < 0) {
-      this.step *= -1
+    if (dir === 'right') {
+      this.bg.pos -= 80
+
+      if (this.bg.pos < -320) {
+        this.bg.pos = 0
+      }
     }
 
-    if (dir === 'left' && this.step > 0) {
-      this.step *= -1
+    if (dir === 'left') {
+      this.bg.pos += 80
+
+      if (this.bg.pos > 0) {
+        this.bg.pos = -320
+      }
     }
 
     domOperations.applyProps(this.elem, {
       style: {
         background: `url(${img}) no-repeat`,
-        backgroundPosition: `top left ${this.bgPos}px`
+        backgroundPosition: `top left ${this.bg.pos}px`
       }
     })
+  }
 
-    let adjOffsetX = this.step
+  moveBackAndForth(img, dir = 'right') {
+    this.bgChange(img, dir)
+
+    if (dir === 'right' && this.horStep < 0) {
+      this.horStep *= -1
+    }
+
+    if (dir === 'left' && this.horStep > 0) {
+      this.horStep *= -1
+    }
+
+    const leftPos = funcs.findCurCoords(this.elem).left
+
+    let adjOffsetX = this.horStep
 
     while (funcs.hasObstacle(this.elem, {x: adjOffsetX, y: 0})) {
-      if (this.step > 0) {
+      if (this.horStep > 0) {
         adjOffsetX--
       } else {
         adjOffsetX++
@@ -64,6 +89,8 @@ export class Player {
     domOperations.heroShift(this.elem, {
       left: leftPos + adjOffsetX
     })
+
+    this.scrollScreen(adjOffsetX, 0)
   }
 
   moveUp() {
@@ -77,31 +104,35 @@ export class Player {
 
     this.jumpAnimation = true
 
-    const jumpHeight = 120
-    const offsetY = -20
-
-    const curCoords = funcs.findCurCoords(this.elem)
-    let curPoint = curCoords.top
-    const endPoint = curPoint - jumpHeight
+    let shiftDistance = this.jumpHeight
 
     const interval = setInterval(() => {
-      let adjOffsetY = offsetY
+      if (this.verStep > 0) {
+        this.verStep *= -1
+      }
+
+      if (shiftDistance <= 0 || !this.jumpAnimation) {
+        this.jumpAnimation = false
+        clearInterval(interval)
+        return
+      }
+
+      let adjOffsetY = this.verStep
 
       while (funcs.hasObstacle(this.elem, {x: 0, y: adjOffsetY})) {
         this.jumpAnimation = false
         adjOffsetY++
       }
 
-      curPoint += adjOffsetY
+      const topPos = funcs.findCurCoords(this.elem).top
+
+      shiftDistance += adjOffsetY
 
       domOperations.heroShift(this.elem, {
-        top: curPoint
+        top: topPos + adjOffsetY
       })
 
-      if (curPoint < endPoint || !this.jumpAnimation) {
-        this.jumpAnimation = false
-        clearInterval(interval)
-      }
+      this.scrollScreen(0, adjOffsetY)
     }, 50)
   }
 
@@ -116,15 +147,29 @@ export class Player {
 
     this.fallAnimation = true
 
-    const curCoords = funcs.findCurCoords(this.elem)
-    let curPoint = curCoords.top
-
     const interval = setInterval(() => {
-      curPoint += 20
+      if (this.verStep < 0) {
+        this.verStep *= -1
+      }
+
+      const curCoords = funcs.findCurCoords(this.elem)
+
+      let adjOffsetX = 0
+
+      while (funcs.hasObstacle(this.elem, {x: adjOffsetX, y: 0})) {
+        if (this.horStep > 0) {
+          adjOffsetX++
+        } else if (this.horStep < 0) {
+          adjOffsetX--
+        }
+      }
 
       domOperations.heroShift(this.elem, {
-        top: curPoint
+        left: curCoords.left + adjOffsetX,
+        top: curCoords.top + this.verStep
       })
+
+      this.scrollScreen(adjOffsetX, this.verStep)
 
       if (funcs.isOnGround(this.elem)) {
         this.fallAnimation = false
@@ -137,16 +182,34 @@ export class Player {
   move(arrowsState) {
     if (arrowsState.right) {
       this.moveBackAndForth(imgRight, 'right')
-      this.dir = 1
     }
 
     if (arrowsState.left) {
       this.moveBackAndForth(imgLeft, 'left')
-      this.dir = -1
     }
 
     if (arrowsState.up) {
       this.moveUp()
+    }
+  }
+
+  scrollScreen(x, y) {
+    const playerCoords = funcs.findCurCoords(this.elem)
+
+    if (playerCoords.left <= game.clientWidth * 0.3 && this.horStep < 0) {
+      domOperations.scrollScreen(x, 0)
+    }
+
+    if (playerCoords.left >= game.clientWidth * 0.7 && this.horStep > 0) {
+      domOperations.scrollScreen(x, 0)
+    }
+
+    if (playerCoords.top <= game.clientHeight * 0.3 && this.verStep < 0) {
+      domOperations.scrollScreen(0, y)
+    }
+
+    if (playerCoords.top >= game.clientHeight * 0.7 && this.verStep > 0) {
+      domOperations.scrollScreen(0, y)
     }
   }
 

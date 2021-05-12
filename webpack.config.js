@@ -6,7 +6,7 @@ module.exports = {
   mode: 'development',
   entry: './src/index.js',
   output: {
-    publicPath: '/',
+    publicPath: './',
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].bundle.js'
   },
@@ -47,22 +47,12 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
-              name: '[path][name].[ext]'
+              name: '[path][name].[ext]',
+              outputPath: 'assets'
             }
           }
         ]
-      },
-      // {
-      //   test: /\.(png|jpe?g|gif)$/i,
-      //   use: [
-      //     {
-      //       loader: 'url-loader',
-      //       options: {
-      //         limit: 8192
-      //       }
-      //     }
-      //   ]
-      // }
+      }
     ]
   }
 }
