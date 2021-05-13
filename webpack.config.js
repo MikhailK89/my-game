@@ -6,11 +6,12 @@ module.exports = {
   mode: 'development',
   entry: './src/index.js',
   output: {
-    publicPath: './',
+    publicPath: '/',
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].[contenthash].bundle.js'
   },
   devServer: {
+    contentBase: path.join(__dirname, 'dist'),
     port: 3000,
     hot: true,
     open: true

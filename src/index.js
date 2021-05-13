@@ -65,5 +65,7 @@ function createHeroes() {
   }, 50)
 }
 
+console.log('create')
+
 createBackground()
 createHeroes()
