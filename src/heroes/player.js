@@ -157,10 +157,11 @@ export class Player {
       let adjOffsetX = 0
 
       while (funcs.hasObstacle(this.elem, {x: adjOffsetX, y: 0})) {
-        if (this.horStep > 0) {
+        if (adjOffsetX <= 0) {
+          adjOffsetX *= -1
           adjOffsetX++
-        } else if (this.horStep < 0) {
-          adjOffsetX--
+        } else {
+          adjOffsetX *= -1
         }
       }
 

@@ -23,4 +23,13 @@ $item-size: 50px;
 
 .player {
   position: absolute;
+  z-index: 1000;
+}
+
+.coin {
+  position: absolute;
+  width: 25px;
+  height: 25px;
+  background-color: yellow;
+  border-radius: 50%;
 }
