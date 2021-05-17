@@ -44,18 +44,31 @@ function createBackground() {
 
 function createHeroes() {
   const createdHeroes = []
+  const heroesChars = Object.keys(worldSettings.heroes)
 
-  worldSettings.worldMap.forEach(row => {
-    for (let i = 0; i < row.length; i++) {
-      if (Object.keys(worldSettings.heroes).includes(row[i])) {
-        const heroClass = worldSettings.heroes[row[i]]
-        const hero = new heroClass()
+  worldSettings.worldMap.forEach((row, idxRow) => {
+    for (let idxCol = 0; idxCol < row.length; idxCol++) {
+      if (heroesChars.includes(row[idxCol])) {
+        const heroClass = worldSettings.heroes[row[idxCol]]
 
-        createdHeroes.push(hero)
+        if (row[idxCol] === 'p') {
+          createdHeroes.push(new heroClass())
+        }
 
-        domOperations.insertElem(hero.elem, game)
+        if (row[idxCol] === 'c') {
+          createdHeroes.push(new heroClass({
+            style: {
+              left: idxCol * worldSettings.rectSize + 'px',
+              top: idxRow * worldSettings.rectSize + 'px'
+            }
+          }))
+        }
       }
     }
+  })
+
+  createdHeroes.forEach(h => {
+    domOperations.insertElem(h.elem, game)
   })
 
   setInterval(() => {

@@ -1,6 +1,6 @@
 import {domOperations} from '../index'
 import {game} from '../index'
-import {groundStatus, notObstacles} from '../settings/worldSettings'
+import {groundStatus, notObstacles, collisionItems} from '../settings/worldSettings'
 
 export function findCurCoords(elem) {
   const elemRect = elem.getBoundingClientRect()
@@ -60,10 +60,38 @@ export function getElemsUnderPoints(elem, set, offset = null) {
       point4: getElemFromPoint(left - 1, verMid),
       point5: getElemFromPoint(right + 1, verMid),
       point6: getElemFromPoint(left - 1, bottom - 1),
-      point7: getElemFromPoint(horMid, bottom - 1),
-      point8: getElemFromPoint(right + 1, bottom - 1)
+      point7: getElemFromPoint(right + 1, bottom - 1)
     }
   }
+
+  if (set === 'coinCollisionPoints') {
+    return {
+      point1: getElemFromPoint(horMid, verMid)
+    }
+  }
+}
+
+export function isHidden(elem) {
+  if (elem.style.display === 'none') {
+    return true
+  }
+
+  return false
+}
+
+export function isVisible(elem, offset = null) {
+  const obstaclePoints = getElemsUnderPoints(elem, 'obstaclePoints', offset)
+  const keys = Object.keys(obstaclePoints)
+
+  for (let i = 0; i < keys.length; i++) {
+    if (!obstaclePoints[keys[i]]) {
+      return false
+    } else if (obstaclePoints[keys[i]].className === 'container') {
+      return false
+    }
+  }
+
+  return true
 }
 
 export function isOnGround(elem) {
@@ -73,7 +101,9 @@ export function isOnGround(elem) {
   let isGround = false
 
   keys.forEach(key => {
-    if (groundStatus.includes(groundPoints[key].className)) {
+    if (!groundPoints[key]) {
+      isGround = false
+    } else if (groundStatus.includes(groundPoints[key].className)) {
       isGround = true
     }
   })
@@ -98,6 +128,21 @@ export function hasObstacle(elem, offset = null) {
   })
 
   return isObstacle
+}
+
+export function collisionHandler(elem) {
+  const obstaclePoints = getElemsUnderPoints(elem, 'coinCollisionPoints')
+  const keys = Object.keys(obstaclePoints)
+
+  keys.forEach(key => {
+    const item = obstaclePoints[key]
+
+    if (item) {
+      if (collisionItems.includes(item.className)) {
+        elem.style.display = 'none'
+      }
+    }
+  })
 }
 
 export function alignHero(elem) {
