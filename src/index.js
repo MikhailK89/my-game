@@ -3,80 +3,21 @@ import './styles/items.scss'
 
 import * as worldSettings from './settings/worldSettings'
 import {DomOperations} from './shared/domOperations'
+import {TrackScroll} from './shared/trackScroll'
+import {TrackKeys} from './shared/trackKeys'
+import {GameManager} from './components/game/gameManager'
+import {createStore} from './store/createStore'
+import {rootReducer} from './store/rootReducer'
+import {initialState} from './store/initialState'
 
 export const domOperations = new DomOperations()
 export const game = document.querySelector('.game')
 
-function trackKeys(codes) {
-  const pressed = {}
+export const trackKeys = new TrackKeys(worldSettings.arrowCodes)
+export const trackScroll = new TrackScroll(game)
 
-  function handler(event) {
-    if (codes.hasOwnProperty(event.keyCode)) {
-      const down = event.type === 'keydown'
-      pressed[codes[event.keyCode]] = down
-      event.preventDefault()
-    }
-  }
+export const store = createStore(rootReducer, initialState)
 
-  addEventListener('keydown', handler)
-  addEventListener('keyup', handler)
+const gameManager = new GameManager()
 
-  return pressed
-}
-
-const arrowsState = trackKeys(worldSettings.arrowCodes)
-
-function createBackgroundElement(item) {
-  return domOperations.createElem('div', {className: worldSettings.bgElems[item]})
-}
-
-function createBackground() {
-  worldSettings.worldMap.forEach(row => {
-    const rowElem = domOperations.createElem('div', {className: 'row'})
-
-    for (let i = 0; i < row.length; i++) {
-      domOperations.insertElem(createBackgroundElement(row[i]), rowElem)
-    }
-
-    domOperations.insertElem(rowElem, game)
-  })
-}
-
-function createHeroes() {
-  const createdHeroes = []
-  const heroesChars = Object.keys(worldSettings.heroes)
-
-  worldSettings.worldMap.forEach((row, idxRow) => {
-    for (let idxCol = 0; idxCol < row.length; idxCol++) {
-      if (heroesChars.includes(row[idxCol])) {
-        const heroClass = worldSettings.heroes[row[idxCol]]
-
-        if (row[idxCol] === 'p') {
-          createdHeroes.push(new heroClass())
-        }
-
-        if (row[idxCol] === 'c') {
-          createdHeroes.push(new heroClass({
-            style: {
-              left: idxCol * worldSettings.rectSize + 'px',
-              top: idxRow * worldSettings.rectSize + 'px'
-            }
-          }))
-        }
-      }
-    }
-  })
-
-  createdHeroes.forEach(h => {
-    domOperations.insertElem(h.elem, game)
-  })
-
-  setInterval(() => {
-    createdHeroes.forEach(h => {
-      h.animate(arrowsState)
-    })
-  }, 50)
-}
-
-createBackground()
-createHeroes()
+gameManager.createGame()

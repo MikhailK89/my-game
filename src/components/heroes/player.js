@@ -1,15 +1,17 @@
-import * as funcs from '../shared/funcs'
-import {domOperations} from '../index'
-import {game} from '../index'
-import imgRight from '../assets/player-sm-right.png'
-import imgLeft from '../assets/player-sm-left.png'
+import * as funcs from '../../shared/funcs'
+import {domOperations} from '../../index'
+import {game} from '../../index'
+import {store} from '../../index'
+import {gameOver} from '../../store/actions'
+import imgRight from '../../assets/player-sm-right.png'
+import imgLeft from '../../assets/player-sm-left.png'
 
 export class Player {
   props = {
     className: 'player',
     style: {
-      left: 40 + 'px',
-      top: 200 + 'px',
+      left: 200 + 'px',
+      top: 300 + 'px',
       width: '80px',
       height: '96px',
       background: `url(${imgRight}) no-repeat`,
@@ -89,8 +91,6 @@ export class Player {
     domOperations.heroShift(this.elem, {
       left: leftPos + adjOffsetX
     })
-
-    this.scrollScreen(adjOffsetX, 0)
   }
 
   moveUp() {
@@ -214,11 +214,28 @@ export class Player {
     }
   }
 
+  collisionHandler() {
+    const obstaclePoints = funcs.getElemsUnderPoints(this.elem, 'obstaclePoints')
+    const keys = Object.keys(obstaclePoints)
+
+    keys.forEach(key => {
+      const item = obstaclePoints[key]
+
+      if (item) {
+        if (item.className === 'game-screen') {
+          store.emit(gameOver())
+        }
+      }
+    })
+  }
+
   animate(arrowsState) {
     this.move(arrowsState)
 
     if (!funcs.isOnGround(this.elem)) {
       this.moveDown()
     }
+
+    this.collisionHandler()
   }
 }

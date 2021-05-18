@@ -1,10 +1,14 @@
-import * as funcs from '../shared/funcs'
-import {domOperations} from '../index'
+import * as funcs from '../../shared/funcs'
+import {domOperations} from '../../index'
+import {collisionItems} from '../../settings/worldSettings'
 
 export class Coin {
   props = {
     className: 'coin'
   }
+
+  animationDelay = Math.random() * 2000
+  animationStart = false
 
   verStep = 5
   jumpHeight = 20
@@ -21,6 +25,14 @@ export class Coin {
     if (addProps) {
       domOperations.applyProps(this.elem, addProps)
     }
+
+    this.init()
+  }
+
+  init() {
+    setTimeout(() => {
+      this.animationStart = true
+    }, this.animationDelay)
   }
 
   moveUp() {
@@ -112,9 +124,28 @@ export class Coin {
     }, 50)
   }
 
+  collisionHandler() {
+    const obstaclePoints = funcs.getElemsUnderPoints(this.elem, 'coinCollisionPoints')
+    const keys = Object.keys(obstaclePoints)
+
+    keys.forEach(key => {
+      const item = obstaclePoints[key]
+
+      if (item) {
+        if (collisionItems.includes(item.className)) {
+          this.elem.style.display = 'none'
+        }
+      }
+    })
+  }
+
   animate() {
     this.visible = funcs.isVisible(this.elem)
     this.hidden = funcs.isHidden(this.elem)
+
+    if (!this.animationStart) {
+      return
+    }
 
     if (this.visible && !this.hidden) {
       if (!funcs.isOnGround(this.elem)) {
@@ -123,7 +154,7 @@ export class Coin {
         this.moveUp()
       }
 
-      funcs.collisionHandler(this.elem)
+      this.collisionHandler()
     }
   }
 }
