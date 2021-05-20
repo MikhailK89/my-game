@@ -1,3 +1,7 @@
 export const initialState = {
-  gameIsOver: false
+  gameIsOver: null,
+  gameIsStarted: false,
+  restartIsActivated: false,
+  totalCoins: 0,
+  collectedCoins: 0
 }

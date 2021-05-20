@@ -1,1 +1,5 @@
 export const GAME_OVER = 'GAME_OVER'
+export const GAME_START = 'GAME_START'
+export const GAME_RESTART = 'GAME_RESTART'
+export const COINS_TOTAL = 'COINS_TOTAL'
+export const COINS_COLLECT = 'COINS_COLLECT'

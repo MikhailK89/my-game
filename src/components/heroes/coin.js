@@ -1,6 +1,8 @@
 import * as funcs from '../../shared/funcs'
 import {domOperations} from '../../index'
 import {collisionItems} from '../../settings/worldSettings'
+import {store} from '../../index'
+import {collectedCoins} from '../../store/actions'
 
 export class Coin {
   props = {
@@ -26,13 +28,23 @@ export class Coin {
       domOperations.applyProps(this.elem, addProps)
     }
 
+    this.checkStoreChanges = this.checkStoreChanges.bind(this)
     this.init()
   }
 
   init() {
+    store.subscribe(this.checkStoreChanges)
+
     setTimeout(() => {
       this.animationStart = true
     }, this.animationDelay)
+  }
+
+  checkStoreChanges(state) {
+    if (state.gameIsOver) {
+      this.jumpAnimation = false
+      this.fallAnimation = false
+    }
   }
 
   moveUp() {
@@ -96,6 +108,11 @@ export class Coin {
     this.fallAnimation = true
 
     const interval = setInterval(() => {
+      if (!this.fallAnimation) {
+        clearInterval(interval)
+        return
+      }
+
       this.visible = funcs.isVisible(this.elem)
       this.hidden = funcs.isHidden(this.elem)
 
@@ -134,6 +151,9 @@ export class Coin {
       if (item) {
         if (collisionItems.includes(item.className)) {
           this.elem.style.display = 'none'
+
+          let coinsCounter = store.getState().collectedCoins
+          store.emit(collectedCoins(++coinsCounter), false)
         }
       }
     })

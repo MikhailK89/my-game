@@ -1,5 +1,6 @@
 import './styles/style.scss'
 import './styles/items.scss'
+import './styles/menu.scss'
 
 import * as worldSettings from './settings/worldSettings'
 import {DomOperations} from './shared/domOperations'

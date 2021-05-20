@@ -23,7 +23,7 @@ $item-size: 50px;
 
 .player {
   position: absolute;
-  z-index: 1000;
+  z-index: 800;
 }
 
 .coin {
@@ -41,5 +41,15 @@ $item-size: 50px;
   width: 10px;
   height: 100%;
   background-color: rgba(255, 0, 0, .7);
-  z-index: 1000;
+  z-index: 900;
+}
+
+.finish {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 10px;
+  background-color: rgba(60, 179, 113, .7);
+  z-index: 900;
 }

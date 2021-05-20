@@ -13,12 +13,18 @@ export function createStore(rootReducer, initialState = {}) {
         }
       }
     },
-    emit(action) {
+    emit(action, withNotice = true) {
       state = rootReducer(state, action)
-      listeners.forEach(listener => listener(state))
+
+      if (withNotice) {
+        listeners.forEach(listener => listener(state))
+      }
     },
     getState() {
       return JSON.parse(JSON.stringify(state))
+    },
+    clearListeners() {
+      listeners = []
     }
   }
 }

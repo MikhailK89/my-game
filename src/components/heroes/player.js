@@ -2,7 +2,7 @@ import * as funcs from '../../shared/funcs'
 import {domOperations} from '../../index'
 import {game} from '../../index'
 import {store} from '../../index'
-import {gameOver} from '../../store/actions'
+import {gameIsOver, gameIsStarted} from '../../store/actions'
 import imgRight from '../../assets/player-sm-right.png'
 import imgLeft from '../../assets/player-sm-left.png'
 
@@ -32,6 +32,20 @@ export class Player {
 
     if (addProps) {
       domOperations.applyProps(this.elem, addProps)
+    }
+
+    this.checkStoreChanges = this.checkStoreChanges.bind(this)
+    this.init()
+  }
+
+  init() {
+    store.subscribe(this.checkStoreChanges)
+  }
+
+  checkStoreChanges(state) {
+    if (state.gameIsOver) {
+      this.jumpAnimation = false
+      this.fallAnimation = false
     }
   }
 
@@ -148,6 +162,11 @@ export class Player {
     this.fallAnimation = true
 
     const interval = setInterval(() => {
+      if (!this.fallAnimation) {
+        clearInterval(interval)
+        return
+      }
+
       if (this.verStep < 0) {
         this.verStep *= -1
       }
@@ -218,15 +237,17 @@ export class Player {
     const obstaclePoints = funcs.getElemsUnderPoints(this.elem, 'obstaclePoints')
     const keys = Object.keys(obstaclePoints)
 
-    keys.forEach(key => {
-      const item = obstaclePoints[key]
+    for (let i = 0; i < keys.length; i++) {
+      const item = obstaclePoints[keys[i]]
 
       if (item) {
-        if (item.className === 'game-screen') {
-          store.emit(gameOver())
+        if (['game-screen', 'finish'].includes(item.className)) {
+          store.emit(gameIsOver(item.className))
+          store.emit(gameIsStarted(false))
+          break
         }
       }
-    })
+    }
   }
 
   animate(arrowsState) {

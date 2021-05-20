@@ -33,4 +33,8 @@ export class TrackScroll {
   unsubscribe(f) {
     this.subs = this.subs.filter(s => s !== f)
   }
+
+  clearSubs() {
+    this.subs = []
+  }
 }
