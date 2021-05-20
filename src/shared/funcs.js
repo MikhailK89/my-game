@@ -1,6 +1,6 @@
 import {domOperations} from '../index'
 import {game} from '../index'
-import {groundStatus, notObstacles, collisionItems} from '../settings/worldSettings'
+import {groundStatus, notObstacles, shadowArea} from '../settings/worldSettings'
 
 export function findCurCoords(elem) {
   const elemRect = elem.getBoundingClientRect()
@@ -86,7 +86,7 @@ export function isVisible(elem, offset = null) {
   for (let i = 0; i < keys.length; i++) {
     if (!obstaclePoints[keys[i]]) {
       return false
-    } else if (obstaclePoints[keys[i]].className === 'container') {
+    } else if (shadowArea.includes(obstaclePoints[keys[i]].className)) {
       return false
     }
   }
@@ -128,21 +128,6 @@ export function hasObstacle(elem, offset = null) {
   })
 
   return isObstacle
-}
-
-export function collisionHandler(elem) {
-  const obstaclePoints = getElemsUnderPoints(elem, 'coinCollisionPoints')
-  const keys = Object.keys(obstaclePoints)
-
-  keys.forEach(key => {
-    const item = obstaclePoints[key]
-
-    if (item) {
-      if (collisionItems.includes(item.className)) {
-        elem.style.display = 'none'
-      }
-    }
-  })
 }
 
 export function alignHero(elem) {

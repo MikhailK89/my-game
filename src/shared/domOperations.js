@@ -56,4 +56,30 @@ export class DomOperations {
     game.scrollLeft += x
     game.scrollTop += y
   }
+
+  centerElem(elem) {
+    this.applyProps(elem, {
+      style: {
+        left: game.offsetWidth / 2 + game.scrollLeft + 'px',
+        top: game.offsetHeight / 2 + game.scrollTop + 'px',
+        marginLeft: -1 * (elem.offsetWidth / 2) + 'px',
+        marginTop: -1 * (elem.offsetHeight / 2) + 'px'
+      }
+    })
+  }
+
+  resetScroll() {
+    game.scrollLeft = 0
+    game.scrollTop = 0
+  }
+
+  leftScrollDone() {
+    const maxScrollLeft = game.scrollWidth - game.clientWidth
+
+    if (Math.ceil(game.scrollLeft) >= maxScrollLeft) {
+      return true
+    }
+
+    return false
+  }
 }

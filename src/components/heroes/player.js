@@ -1,15 +1,17 @@
-import * as funcs from '../shared/funcs'
-import {domOperations} from '../index'
-import {game} from '../index'
-import imgRight from '../assets/player-sm-right.png'
-import imgLeft from '../assets/player-sm-left.png'
+import * as funcs from '../../shared/funcs'
+import {domOperations} from '../../index'
+import {game} from '../../index'
+import {store} from '../../index'
+import {gameIsOver, gameIsStarted} from '../../store/actions'
+import imgRight from '../../assets/player-sm-right.png'
+import imgLeft from '../../assets/player-sm-left.png'
 
 export class Player {
   props = {
     className: 'player',
     style: {
-      left: 40 + 'px',
-      top: 200 + 'px',
+      left: 200 + 'px',
+      top: 300 + 'px',
       width: '80px',
       height: '96px',
       background: `url(${imgRight}) no-repeat`,
@@ -30,6 +32,20 @@ export class Player {
 
     if (addProps) {
       domOperations.applyProps(this.elem, addProps)
+    }
+
+    this.checkStoreChanges = this.checkStoreChanges.bind(this)
+    this.init()
+  }
+
+  init() {
+    store.subscribe(this.checkStoreChanges)
+  }
+
+  checkStoreChanges(state) {
+    if (state.gameIsOver) {
+      this.jumpAnimation = false
+      this.fallAnimation = false
     }
   }
 
@@ -89,8 +105,6 @@ export class Player {
     domOperations.heroShift(this.elem, {
       left: leftPos + adjOffsetX
     })
-
-    this.scrollScreen(adjOffsetX, 0)
   }
 
   moveUp() {
@@ -148,6 +162,11 @@ export class Player {
     this.fallAnimation = true
 
     const interval = setInterval(() => {
+      if (!this.fallAnimation) {
+        clearInterval(interval)
+        return
+      }
+
       if (this.verStep < 0) {
         this.verStep *= -1
       }
@@ -214,11 +233,30 @@ export class Player {
     }
   }
 
+  collisionHandler() {
+    const obstaclePoints = funcs.getElemsUnderPoints(this.elem, 'obstaclePoints')
+    const keys = Object.keys(obstaclePoints)
+
+    for (let i = 0; i < keys.length; i++) {
+      const item = obstaclePoints[keys[i]]
+
+      if (item) {
+        if (['game-screen', 'finish'].includes(item.className)) {
+          store.emit(gameIsOver(item.className))
+          store.emit(gameIsStarted(false))
+          break
+        }
+      }
+    }
+  }
+
   animate(arrowsState) {
     this.move(arrowsState)
 
     if (!funcs.isOnGround(this.elem)) {
       this.moveDown()
     }
+
+    this.collisionHandler()
   }
 }
