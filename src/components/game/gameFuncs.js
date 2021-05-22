@@ -57,6 +57,7 @@ export function createHeroes() {
 
         if (row[idxCol] === 'f') {
           const finish = new heroClass()
+          trackScroll.subscribe(finish.checkScreenScroll)
           createdHeroes.push(finish)
         }
       }

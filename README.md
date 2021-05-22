@@ -4,10 +4,10 @@
 It's a 2d platformer implemented using *pure JavaScript* and *DOM API* (without *Canvas* and special libs).
 
 At the moment this game has the following functionality:
-1. The Player's physics
-2. Obstacles and glitch areas handling
-3. Collision handler for coins and player
-4. Game over and finish areas (with simple animation)
+1. The player's physics
+2. Obstacle and glitch areas handling
+3. Collision handlers for coins and player
+4. Game over and finish event handlers
 5. The observer pattern for the global state control and game scrolling
 
 ## Available Scripts
@@ -17,15 +17,15 @@ At the moment this game has the following functionality:
 **Note:** it is necessary to specify `publicPath: '/'` in `webpack.config.js` for the DevServer to work correctly. If you are planning to upload the project to a subdirectory of your site then change this property to `publicPath: './'` when building for production.
 
 ## Game engine logic
-1. A character sprite is inside a rectangular block element
+1. A character sprite is inside a rectangular block element. The player has two sprites for left and right movement animation. To add sprites into the player's `div` block I used the tag `<img src="">`. This tag allows you to load images immediately and then move sprites relative to the player's `div` block. Using the `background: url(/img_path)` property has a drawback associated with the time lag for switching sprites (the function `url()` takes time to load the image). Therefore the sprite may freeze when switching
 2. The coordinates of the game elements are calculated relative to the block `game` without taking into account the scrolling of the block (calculations only relative to the visible area)
 3. `setInterval()` inside `src/components/game/gameManager.js` after clicking on the menu button calls the animation of characters and passes the state of motion keys (right, left and up)
 4. Each call of the `hero.animate()` method checks if a character is on the ground
 5. A character has *three* points at the base to check the ground and *seven* points to check obstacles in the default case (different characters may have their own set of obstacle points). If a character is on the ground then alignment to the ground level occurs
-6. Before moving a character checks for an obstacle at the next coordinate according to its step (vertical or horizontal). If an obstacle is in the path of movement then a character shortens its step in order to get as close as possible to an obstacle
-7. The folder `src/shared` contains general functions for working with *dom* elements, coordinates, alignment, obstacle check and ground check. The animation of movements is implemented at the level of character logic (see `src/components/heroes`). The folder `src/components/game` contains the game control interface. The dynamic game menu is implemented in `src/components/menu.js`
+6. Before moving a character checks for an obstacle at the next coordinate according to its step (vertical or horizontal). If an obstacle is in the path of movement then a character shortens its step in order to get as close as possible to an obstacle (through the loop `while`)
+7. The folder `src/shared` contains general functions for working with *dom* elements, coordinates, alignment, obstacle check and ground check. The animation of movements is implemented at the level of character logic (see `src/components/heroes`). The folder `src/components/game` contains the game control interface. All supporting functions for `src/components/game/gameManager.js` are moved to a separate module `gameFuncs.js` in the same folder. The dynamic game menu is implemented in `src/components/menu.js`
 8. The game components communicate with each other using a single state (see `src/store`). The components may change the global state without notifying each other (in such case the second parameter of the `store.emit(action, withNotify)` method takes on the value `false`)
-9. The background of the game is generated from the array (see `src/settings/worldSettings.js`). Each element of the array converted to the `div` element with the corresponding class
+9. The background of the game is generated from the array (see `src/settings/worldSettings.js`). Each element (string symbol) of the array converted to the `div` element with the corresponding class
 10. The block with the game has a fixed size of 1200 x 600 pixels. Also this block has scrolling along both axes
 
 ## Links

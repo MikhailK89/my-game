@@ -46,9 +46,9 @@ export function getElemsUnderPoints(elem, set, offset = null) {
 
   if (set === 'groundPoints') {
     return {
-      point1: getElemFromPoint(left, bottom),
-      point2: getElemFromPoint(horMid, bottom),
-      point3: getElemFromPoint(right, bottom)
+      point1: getElemFromPoint(left, bottom + 1),
+      point2: getElemFromPoint(horMid, bottom + 1),
+      point3: getElemFromPoint(right, bottom + 1)
     }
   }
 

@@ -14,23 +14,28 @@ export class Finish {
     if (addProps) {
       domOperations.applyProps(this.elem, addProps)
     }
+
+    this.checkScreenScroll = this.checkScreenScroll.bind(this)
+  }
+
+  checkScreenScroll(scrollCoords) {
+    if (this.finishActivated) {
+      domOperations.applyProps(this.elem, {
+        style: {
+          right: -1 * scrollCoords.x + 'px',
+          top: scrollCoords.y + 'px'
+        }
+      })
+    }
   }
 
   activateFinish() {
+    this.finishActivated = true
     this.elem.style.display = 'block'
-
-    domOperations.applyProps(this.elem, {
-      style: {
-        right: -1 * game.scrollLeft + 'px',
-        top: game.scrollTop + 'px',
-        height: 100 + '%'
-      }
-    })
   }
 
   animate() {
     if (domOperations.leftScrollDone() && !this.finishActivated) {
-      this.finishActivated = true
       this.activateFinish()
     }
   }
