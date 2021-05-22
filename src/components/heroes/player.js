@@ -8,15 +8,7 @@ import imgLeft from '../../assets/player-sm-left.png'
 
 export class Player {
   props = {
-    className: 'player',
-    style: {
-      left: 200 + 'px',
-      top: 300 + 'px',
-      width: '80px',
-      height: '96px',
-      background: `url(${imgRight}) no-repeat`,
-      backgroundPosition: 'top left -320px'
-    }
+    className: 'player'
   }
 
   horStep = 7
@@ -34,6 +26,8 @@ export class Player {
       domOperations.applyProps(this.elem, addProps)
     }
 
+    this.createSprites()
+
     this.checkStoreChanges = this.checkStoreChanges.bind(this)
     this.init()
   }
@@ -49,13 +43,37 @@ export class Player {
     }
   }
 
-  bgChange(img, dir) {
+  createSprites() {
+    this.imgRight = domOperations.createElem('img', {
+      className: 'player__img-right',
+      src: imgRight,
+      style: {
+        left: -320 + 'px'
+      }
+    })
+
+    this.imgLeft = domOperations.createElem('img', {
+      className: 'player__img-left',
+      src: imgLeft,
+      style: {
+        display: 'none'
+      }
+    })
+
+    domOperations.insertElem(this.imgRight, this.elem)
+    domOperations.insertElem(this.imgLeft, this.elem)
+  }
+
+  manageSprite(dir) {
     if (this.bg.dir !== dir) {
       this.bg.pos = -1 * (this.bg.pos + 320)
       this.bg.dir = dir
     }
 
     if (dir === 'right') {
+      this.imgRight.style.display = 'block'
+      this.imgLeft.style.display = 'none'
+
       this.bg.pos -= 80
 
       if (this.bg.pos < -320) {
@@ -64,6 +82,9 @@ export class Player {
     }
 
     if (dir === 'left') {
+      this.imgLeft.style.display = 'block'
+      this.imgRight.style.display = 'none'
+
       this.bg.pos += 80
 
       if (this.bg.pos > 0) {
@@ -71,16 +92,17 @@ export class Player {
       }
     }
 
-    domOperations.applyProps(this.elem, {
+    const imgElem = dir === 'right' ? this.imgRight : this.imgLeft
+
+    domOperations.applyProps(imgElem, {
       style: {
-        background: `url(${img}) no-repeat`,
-        backgroundPosition: `top left ${this.bg.pos}px`
+        left: this.bg.pos + 'px'
       }
     })
   }
 
-  moveBackAndForth(img, dir = 'right') {
-    this.bgChange(img, dir)
+  moveBackAndForth(dir = 'right') {
+    this.manageSprite(dir)
 
     if (dir === 'right' && this.horStep < 0) {
       this.horStep *= -1
@@ -201,11 +223,11 @@ export class Player {
 
   move(arrowsState) {
     if (arrowsState.right) {
-      this.moveBackAndForth(imgRight, 'right')
+      this.moveBackAndForth('right')
     }
 
     if (arrowsState.left) {
-      this.moveBackAndForth(imgLeft, 'left')
+      this.moveBackAndForth('left')
     }
 
     if (arrowsState.up) {
