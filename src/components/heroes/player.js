@@ -101,6 +101,22 @@ export class Player {
     })
   }
 
+  restoreSpritePos() {
+    if (this.bg.dir === 'right') {
+      this.bg.pos = -320
+    } else if (this.bg.dir === 'left') {
+      this.bg.pos = 0
+    }
+
+    const imgElem = this.bg.dir === 'right' ? this.imgRight : this.imgLeft
+
+    domOperations.applyProps(imgElem, {
+      style: {
+        left: this.bg.pos + 'px'
+      }
+    })
+  }
+
   moveBackAndForth(dir = 'right') {
     this.manageSprite(dir)
 
@@ -233,6 +249,12 @@ export class Player {
     if (arrowsState.up) {
       this.moveUp()
     }
+
+    if (funcs.isOnGround(this.elem)) {
+      if (!arrowsState.right && !arrowsState.left && !arrowsState.up) {
+        this.restoreSpritePos()
+      }
+    }
   }
 
   scrollScreen(x, y) {
@@ -261,9 +283,10 @@ export class Player {
 
     for (let i = 0; i < keys.length; i++) {
       const item = obstaclePoints[keys[i]]
+      const gameOverAreas = ['finish']
 
       if (item) {
-        if (['game-screen', 'finish'].includes(item.className)) {
+        if (gameOverAreas.includes(item.className)) {
           store.emit(gameIsOver(item.className))
           store.emit(gameIsStarted(false))
           break
@@ -273,10 +296,12 @@ export class Player {
   }
 
   animate(arrowsState) {
-    this.move(arrowsState)
+    if (!store.getState().gameIsOver) {
+      this.move(arrowsState)
 
-    if (!funcs.isOnGround(this.elem)) {
-      this.moveDown()
+      if (!funcs.isOnGround(this.elem)) {
+        this.moveDown()
+      }
     }
 
     this.collisionHandler()

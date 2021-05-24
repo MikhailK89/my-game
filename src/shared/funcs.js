@@ -86,7 +86,13 @@ export function isVisible(elem, offset = null) {
   for (let i = 0; i < keys.length; i++) {
     if (!obstaclePoints[keys[i]]) {
       return false
-    } else if (shadowArea.includes(obstaclePoints[keys[i]].className)) {
+    }
+
+    if (obstaclePoints[keys[i]].closest('.menu')) {
+      return false
+    }
+
+    if (shadowArea.includes(obstaclePoints[keys[i]].className)) {
       return false
     }
   }
